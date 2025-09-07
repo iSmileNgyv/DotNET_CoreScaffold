@@ -1,0 +1,56 @@
+# ===============================
+# .NET / C# Microservice .gitignore
+# ===============================
+
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+**/Debug/
+**/Release/
+**/x64/
+**/x86/
+
+# Logs
+*.log
+logs/
+
+# IDE settings
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.rsuser
+*.sln.docstates
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+
+# Publish artifacts
+artifacts/
+publish/
+dist/
+
+# Configuration secrets (local only)
+**/appsettings.*.local.json
+**/appsettings.Development.local.json
+**/secrets.json
+*.env
+*.env.*
+
+# Azure Functions local
+**/local.settings.json
+
+# OS junk
+.DS_Store
+Thumbs.db
+
