@@ -1,0 +1,81 @@
+﻿version: '3.8'
+
+# ==================================================
+# SHARED INFRASTRUCTURE
+# ==================================================
+services:
+  # Shared Redis
+  redis:
+    image: redis:7-alpine
+    container_name: shared-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - shared-infrastructure
+    restart: unless-stopped
+    command: redis-server --requirepass redis_password123
+
+  # Apache Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: shared-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - shared-infrastructure
+    restart: unless-stopped
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: shared-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - shared-infrastructure
+    restart: unless-stopped
+
+# ==================================================
+# AUTH SERVICE
+# ==================================================
+  # Auth Database
+  auth-db:
+    image: postgres:15-alpine
+    container_name: auth-postgres
+    environment:
+      POSTGRES_DB: AuthDB
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: auth_password123
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - auth-service
+    restart: unless-stopped
+
+# ==================================================
+# NETWORK CONFIGURATION
+# ==================================================
+networks:
+  # Shared infrastructure network (Redis, Kafka, etc.)
+  shared-infrastructure:
+    driver: bridge
+    
+  # Auth service network (Auth API + Auth DB)
+  auth-service:
+    driver: bridge
+
+volumes:
+  auth_data:
+  redis_data:
